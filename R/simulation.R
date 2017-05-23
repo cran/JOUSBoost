@@ -41,8 +41,7 @@
 #' radius = sqrt(outer(x^2, x^2, "+"))
 #' prob = ifelse(radius >= outer_r, 0, ifelse(radius <= inner_r, 1,
 #'              (outer_r-radius)/(outer_r-inner_r)))
-#' filled.contour(x, x, prob, col=rev(palette(gray(seq(0,.9,len=20)))),
-#'                xlab='x1', ylab='x2', main='p(y=1|x)')
+#' image(x, x, prob, main='Probability Density: Circle Example')
 #' }
 #'
 #' @export
@@ -50,7 +49,7 @@ circle_data = function(n = 500, inner_r = 8, outer_r = 28){
   if(outer_r <= inner_r)
     stop('outer_r must be strictly larger than inner_r')
 
-  X = matrix(stats::runif(2*n, 0, outer_r), nrow=n, ncol=2)
+  X = matrix(stats::runif(2*n, -outer_r, outer_r), nrow=n, ncol=2)
   r = apply(X, 1, function(x) sqrt(sum(x^2)))
   p = 1*(r < inner_r) +
     (outer_r-r)/(outer_r-inner_r)*((inner_r < r) & (r < outer_r))
@@ -81,7 +80,7 @@ circle_data = function(n = 500, inner_r = 8, outer_r = 28){
 #'
 #' @examples
 #' set.seed(111)
-#' dat = friedman_data(n = 500, d = 10, gamma = 0.5)
+#' dat = friedman_data(n = 500, gamma = 0.5)
 #'
 #' @export
 friedman_data = function(n = 500, d = 10, gamma = 10){
