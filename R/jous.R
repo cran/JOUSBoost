@@ -33,7 +33,7 @@
 #' @param packages If \code{parallel = TRUE}, a vector of strings containing the
 #'        names of any packages used in \code{class_func} or \code{pred_func}.
 #'        See examples below.
-#' @return Returns an object of class JOUS containing information about the
+#' @return Returns a list containing information about the
 #' parameters used in the \code{jous} function call, as well as the following
 #' additional components:
 #' \item{q}{The vector of target quantiles estimated by \code{jous}.  Note that
@@ -185,10 +185,10 @@ jous = function(X, y,
     }
   }
 
-  # create JOUS object
+  # create jous object
   jous_obj = list(delta=delta, nu=nu, q=q, type=type, models=models,
                   pred_func = pred_func, packages=packages, parallel=parallel)
-  class(jous_obj) = "JOUS"
+  class(jous_obj) = "jous"
 
   # in sample
   jous_obj$phat_train = stats::predict(jous_obj, X, type="prob")
@@ -211,7 +211,7 @@ jous = function(X, y,
 #' Create predictions
 #'
 #' Makes a prediction on new data for a given fitted \code{jous} model.
-#' @param object An object of class JOUS returned by the \code{jous} function.
+#' @param object An object of class \code{jous} returned by the \code{jous} function.
 #' @param X A design matrix of predictors.
 #' @param type The type of prediction to return.  If \code{type="response"}, a
 #'        class label of -1 or 1 is returned.  If \code{type="prob"}, the
@@ -240,12 +240,12 @@ jous = function(X, y,
 #' phat = predict(jous_fit, dat$X[-train_index, ], type="prob")
 #' }
 #' @export
-predict.JOUS = function(object, X, type=c("response", "prob"), ...){
+predict.jous = function(object, X, type=c("response", "prob"), ...){
 
   # handle args
   type = match.arg(type)
   if(is.null(object$models))
-    stop("No saved models in your JOUS object.  Rerun with keep_models = TRUE")
+    stop("No saved models in your jous object.  Rerun with keep_models = TRUE")
 
   delta = object$delta
   q = object$q
@@ -280,12 +280,12 @@ predict.JOUS = function(object, X, type=c("response", "prob"), ...){
 }
 
 #' Print a summary of \code{jous} fit.
-#' @param x A JOUS object fit using the \code{jous} function.
+#' @param x A \code{jous} object.
 #' @param ... \dots
 #' @return Printed summary of the fit
 #' @export
-print.JOUS = function(x, ...){
-  cat('JOUS fit: \n')
+print.jous = function(x, ...){
+  cat('jous fit: \n')
   cat('    type: ', x$type, '\n')
   cat('    delta: ', x$delta, '\n')
   cat('\n In-sample confusion matrix:\n')

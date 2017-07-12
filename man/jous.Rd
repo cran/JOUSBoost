@@ -53,7 +53,7 @@ names of any packages used in \code{class_func} or \code{pred_func}.
 See examples below.}
 }
 \value{
-Returns an object of class JOUS containing information about the
+Returns a list containing information about the
 parameters used in the \code{jous} function call, as well as the following
 additional components:
 \item{q}{The vector of target quantiles estimated by \code{jous}.  Note that

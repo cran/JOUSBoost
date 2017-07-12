@@ -4,7 +4,8 @@
 \alias{adaboost}
 \title{AdaBoost Classifier}
 \usage{
-adaboost(X, y, tree_depth = 3, n_rounds = 100, verbose = FALSE)
+adaboost(X, y, tree_depth = 3, n_rounds = 100, verbose = FALSE,
+  control = NULL)
 }
 \arguments{
 \item{X}{A matrix of continuous predictors.}
@@ -16,9 +17,12 @@ adaboost(X, y, tree_depth = 3, n_rounds = 100, verbose = FALSE)
 \item{n_rounds}{The number of rounds of boosting to use.}
 
 \item{verbose}{Whether to print the number of iterations.}
+
+\item{control}{A \code{rpart.control} list that controls properties of fitted
+decision trees.}
 }
 \value{
-Returns an object of class AdaBoost containing the following values:
+Returns an object of class \code{adaboost} containing the following values:
 \item{alphas}{Weights computed in the adaboost fit.}
 \item{trees}{The trees constructed in each round of boosting.  Storing trees
              allows one to make predictions on new data.}

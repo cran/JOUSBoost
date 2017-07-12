@@ -8,12 +8,14 @@
 #' @param tree_depth The depth of the base tree classifier to use.
 #' @param n_rounds The number of rounds of boosting to use.
 #' @param verbose Whether to print the number of iterations.
+#' @param control A \code{rpart.control} list that controls properties of fitted
+#' decision trees.
 #'
 #' @references Freund, Y. and Schapire, R. (1997). A decision-theoretic
 #' generalization of online learning and an application to boosting, Journal of
 #'  Computer and System Sciences 55: 119-139.
 #'
-#' @return Returns an object of class AdaBoost containing the following values:
+#' @return Returns an object of class \code{adaboost} containing the following values:
 #' \item{alphas}{Weights computed in the adaboost fit.}
 #' \item{trees}{The trees constructed in each round of boosting.  Storing trees
 #'              allows one to make predictions on new data.}
@@ -41,7 +43,8 @@
 #' mean(dat$y[-train_index] != yhat_ada)
 #' }
 #' @export
-adaboost = function(X, y, tree_depth = 3, n_rounds = 100, verbose = FALSE){
+adaboost = function(X, y, tree_depth = 3, n_rounds = 100, verbose = FALSE,
+                    control = NULL){
 
   # check data types
   if(!all(y %in% c(-1,1)))
@@ -50,10 +53,15 @@ adaboost = function(X, y, tree_depth = 3, n_rounds = 100, verbose = FALSE){
   if(!is.matrix(X))
     stop("X must be a matrix")
 
-  control = rpart::rpart.control(minsplit = 0, minbucket = 1, cp = -1,
-                                 maxcompete = 0, maxsurrogate = 0,
-                                 usesurrogate = 0, xval = 0,
-                                 maxdepth = tree_depth)
+  # check for presence of rpart control
+  if(is.null(control)){
+    control = rpart::rpart.control(minsplit = 0, minbucket = 1, cp = -1,
+                                   maxcompete = 0, maxsurrogate = 0,
+                                   usesurrogate = 0, xval = 0,
+                                   maxdepth = tree_depth)
+  } else if(control$maxdepth != tree_depth){
+    warning(paste('tree_depth set to: ', control$maxdepth))
+  }
 
   n = dim(X)[1]
   w = rep(1/n, n)
@@ -110,7 +118,7 @@ adaboost = function(X, y, tree_depth = 3, n_rounds = 100, verbose = FALSE){
 
   out = list(alphas = unlist(alphas), trees = trees, tree_depth = tree_depth,
              terms=terms)
-  class(out) = "AdaBoost"
+  class(out) = "adaboost"
 
   # create confusion matrix for in-sample fits
   yhat = stats::predict(out, X)
@@ -123,7 +131,7 @@ adaboost = function(X, y, tree_depth = 3, n_rounds = 100, verbose = FALSE){
 #'
 #' Makes a prediction on new data for a given fitted \code{adaboost} model.
 #'
-#' @param object An object of class AdaBoost returned by the \code{adaboost} function.
+#' @param object An object of class \code{adaboost} returned by the \code{adaboost} function.
 #' @param X A design matrix of predictors.
 #' @param type The type of prediction to return.  If \code{type="response"}, a
 #'        class label of -1 or 1 is returned.  If \code{type="prob"}, the
@@ -159,9 +167,9 @@ adaboost = function(X, y, tree_depth = 3, n_rounds = 100, verbose = FALSE){
 #' phat = predict(ada, dat$X[-train_index, ], type="prob")
 #' }
 #'
-#' @export predict.AdaBoost
+#' @export predict.adaboost
 #' @export
-predict.AdaBoost = function(object, X, type=c("response", "prob"),
+predict.adaboost = function(object, X, type=c("response", "prob"),
                             n_tree = NULL, ...){
   # handle args
   type = match.arg(type)
@@ -193,12 +201,12 @@ predict.AdaBoost = function(object, X, type=c("response", "prob"),
 }
 
 #' Print a summary of adaboost fit.
-#' @param x An AdaBoost object fit using the \code{adaboost} function.
+#' @param x An adaboost object fit using the \code{adaboost} function.
 #' @param ... \dots
 #' @return Printed summary of the fit, including information about the tree
 #'         depth and number of boosting rounds used.
 #' @export
-print.AdaBoost = function(x, ...){
+print.adaboost = function(x, ...){
   cat('AdaBoost: tree_depth = ', x$tree_depth, ' rounds = ',
       length(x$alphas), '\n')
   cat('\n\n In-sample confusion matrix:\n')
